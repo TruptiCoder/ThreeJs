@@ -14,7 +14,13 @@ const scene = new THREE.Scene()
  */
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture = textureLoader.load("matcaps/8.png")
+const matcapTexture2 = textureLoader.load("matcaps/7.png")
+const matcapTexture3 = textureLoader.load("matcaps/4.png")
+const matcapTexture4 = textureLoader.load("matcaps/3.png")
 matcapTexture.colorSpace = THREE.SRGBColorSpace
+matcapTexture2.colorSpace = THREE.SRGBColorSpace
+matcapTexture3.colorSpace = THREE.SRGBColorSpace
+matcapTexture4.colorSpace = THREE.SRGBColorSpace
 
 /**
  * Fonts
@@ -25,7 +31,8 @@ fontLoader.load(
     'fonts/helvetiker_regular.typeface.json',
     (font) => {
         const textGeometry = new TextGeometry(
-            `Trupti`,
+            `     Hello,
+I am Trupti`,
             {
                 font,
                 size: 0.5,
@@ -51,19 +58,39 @@ fontLoader.load(
         // easy way
         textGeometry.center()
 
-        const material = new THREE.MeshNormalMaterial()
+        // const material = new THREE.MeshNormalMaterial()
 
-        // const material = new THREE.MeshMatcapMaterial()
-        // material.matcap = matcapTexture
+        const material = new THREE.MeshMatcapMaterial()
+        material.matcap = matcapTexture
 
-        const text = new THREE.Mesh(textGeometry, material)
+        const material2 = new THREE.MeshMatcapMaterial()
+        material2.matcap = matcapTexture2
+
+        const material3 = new THREE.MeshMatcapMaterial()
+        material3.matcap = matcapTexture3
+
+        const material4 = new THREE.MeshMatcapMaterial()
+        material4.matcap = matcapTexture4
+
+        const textMaterial = new THREE.MeshNormalMaterial()
+
+        const donutMaterials = [material, material2, material3, material4]
+
+        const text = new THREE.Mesh(textGeometry, textMaterial)
         scene.add(text)
 
         console.time("donuts")
         const donutGeometry = new THREE.TorusGeometry(0.3, 0.2, 20, 25)
+        const donutGeometry2 = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+        const donutGeometry3 = new THREE.SphereGeometry(0.5)
+
+        const donutGeometries = [donutGeometry, donutGeometry2, donutGeometry3]
 
         for(let i = 0; i < 200; i++) {
-            const donut = new THREE.Mesh(donutGeometry, material)
+            const num = Math.floor(Math.random() * 4)
+            const geo = Math.floor(Math.random() * 3)
+
+            const donut = new THREE.Mesh(donutGeometries[geo], donutMaterials[num])
 
             //translation
             donut.position.x = (Math.random() - 0.5) * 15
@@ -107,7 +134,7 @@ window.addEventListener("resize", () => {
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(3, 1, 3)
+camera.position.set(3, 1, 1)
 scene.add(camera)
 
 /**
