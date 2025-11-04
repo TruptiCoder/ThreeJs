@@ -1,44 +1,122 @@
 import { useFrame } from '@react-three/fiber'
 import { Perf } from 'r3f-perf'
 import { useRef } from 'react'
-import { AccumulativeShadows, SoftShadows, BakeShadows, useHelper, OrbitControls, RandomizedLight } from '@react-three/drei'
+import { Sky, ContactShadows, AccumulativeShadows, SoftShadows, BakeShadows, useHelper, OrbitControls, RandomizedLight, Environment, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
+import { useControls } from 'leva'
 
 export default function Experience() {
 
     const cubeRef = useRef()
     const dirLight = useRef()
 
-    useHelper(dirLight, THREE.DirectionalLightHelper, 1)
+    // useHelper(dirLight, THREE.DirectionalLightHelper, 1)
 
     useFrame((state, delta) => {
         cubeRef.current.rotation.y += delta * 0.2
+        // const time = state.clock.elapsedTime
+        // cubeRef.current.position.x = 2 + Math.sin(time)
+    })
+
+    const { color, opacity, blur} = useControls('contact Shadows', {
+        color: '#111111',
+        opacity: { value: .5, min: 0, max: 1, step: 0.01 },
+        blur: { value: 2, min: 0, max: 10, step: 0.01 }
+    })
+
+    const { sunPosition } = useControls('Sky', {
+        sunPosition: { value: [1, 2, 3] }
+    })
+
+    const { envMapIntensity } = useControls('Environment Map', {
+        envMapIntensity: { value: 0.6, min: 0, max: 12 }
+    })
+
+    const { metalness, roughness } = useControls("Mesh", {
+        metalness: { value: 1.9, min: 0, max: 10 },
+        roughness: { value: 0.3, min: 0, max: 10 }
     })
     
   return (
     <>
+        <Environment 
+            background
+            // files={ './environmentMaps/the_sky_is_on_fire_2k.hdr' }
+            // ground={ {
+            //     'height': 7,
+            //     'radius': 28,
+            //     'scale': 100
+            // } }
+            preset='sunset'
+            environmentIntensity={ envMapIntensity }
+            resolution={ 32 }
+        >
+            <color args={ ['#000000'] } attach={ 'background' } />
+            {/* <mesh position-z={ -5 } scale={ 10 } >
+                <planeGeometry />
+                <meshBasicMaterial color={ [10, 0, 0] } />
+            </mesh> */}
+            <Lightformer 
+                position-z={ -5 } 
+                scale={ 10 } 
+                color={ 'turquoise' }
+                intensity={ 2 }
+                form={ 'ring' }
+            />
+        </Environment>
+
+
+        {/* [
+            './environmentMaps/2/px.jpg',
+            './environmentMaps/2/nx.jpg',
+            './environmentMaps/2/py.jpg',
+            './environmentMaps/2/ny.jpg',
+            './environmentMaps/2/pz.jpg',
+            './environmentMaps/2/nz.jpg',
+        ] To use cubeTextures  */}
+            
+
         <Perf position='top-left'/>
 
-        <color args={ ['purple'] } attach={ 'background' } />
+        {/* <color args={ ['purple'] } attach={ 'background' } /> */}
 
         {/* <SoftShadows size={25} samples={10} focus={0} /> */}
         {/* <BakeShadows /> */}
         
         <OrbitControls />
 
-        <AccumulativeShadows 
+        {/* <AccumulativeShadows 
             position={ [0, -0.99, 0] }
+            color='#316d39'
+            opacity={ 0.8 }
             scale={ 10 }
+            frames={ 100 }
+            temporal
         >
             <RandomizedLight 
+                amount={ 8 }
+                radius={ 1 }
+                ambient={ 0.5 }
+                intensity={ 3 }
+                bias={ 0.001 }
                 position={ [1, 2, 3] }
             />
-        </AccumulativeShadows>
+        </AccumulativeShadows> */}
 
-        <ambientLight />
+        <ContactShadows
+            position={ [0, 0, 0] }
+            scale={ 10 }
+            resolution={ 512 }
+            far={ 5 }
+            color={ color }
+            opacity={ opacity }
+            blur={ blur }
+        />
+
+        {/* <ambientLight />
         <directionalLight 
             ref={dirLight}
-            position={ [1, 2, 3] }
+            position={ sunPosition }
             intensity={2}
             castShadow
             shadow-mapSize={ [1024, 1024] } 
@@ -50,21 +128,22 @@ export default function Experience() {
             shadow-camera-left = { -5 }
         />
 
+        <Sky 
+            sunPosition={ sunPosition }
+        /> */}
+
         <group>
             <mesh ref={cubeRef} castShadow position={ [2, 0, 0] } >
                 <boxGeometry />
-                <meshStandardMaterial color={'mediumpurple'} />
+                <meshStandardMaterial color={'mediumpurple'} metalness={ metalness } roughness={ roughness } />
             </mesh>
 
             <mesh castShadow position={ [ -2, 0, 0] } scale={0.8} >
                 <sphereGeometry />
-                <meshStandardMaterial color={ 'orange' } />
+                <meshStandardMaterial color={ 'orange' } metalness={ metalness } roughness={ roughness } />
             </mesh>
 
-            <mesh scale={10} position={ [0, -1, 0] } rotation-x={ -Math.PI * .5} > {/* receiveShadow needs to be added */}
-                <planeGeometry />
-                <meshStandardMaterial color={'yellowgreen'} />
-            </mesh>
+            
         </group>
 
     </>

@@ -8,12 +8,12 @@ export default function App() {
     <>
 
       <Canvas 
-        shadows
+        // shadows
         camera={{
           fov: 45,
           near: 0.1,
           far: 100,
-          position: [0, -2, 6]
+          position: [-2, 4, -5]
         }}
       >
         <Experience />
