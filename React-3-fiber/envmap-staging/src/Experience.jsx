@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { Perf } from 'r3f-perf'
 import { useRef } from 'react'
-import { Sky, ContactShadows, AccumulativeShadows, SoftShadows, BakeShadows, useHelper, OrbitControls, RandomizedLight, Environment, Lightformer } from '@react-three/drei'
+import { Sky, ContactShadows, AccumulativeShadows, SoftShadows, BakeShadows, useHelper, OrbitControls, RandomizedLight, Environment, Lightformer, Stage } from '@react-three/drei'
 import * as THREE from 'three'
 import { useControls } from 'leva'
 
@@ -28,8 +28,11 @@ export default function Experience() {
         sunPosition: { value: [1, 2, 3] }
     })
 
-    const { envMapIntensity } = useControls('Environment Map', {
-        envMapIntensity: { value: 0.6, min: 0, max: 12 }
+    const { envMapIntensity, envMapHeight, envMapRadius, envMapScale } = useControls('Environment Map', {
+        envMapIntensity: { value: 0.7, min: 0, max: 12 },
+        envMapHeight: { value: 7, min: 0, max: 100},
+        envMapRadius: { value: 28, min: 10, max: 1000},
+        envMapScale: { value: 10, min: 10, max: 1000}
     })
 
     const { metalness, roughness } = useControls("Mesh", {
@@ -42,20 +45,20 @@ export default function Experience() {
         <Environment 
             background
             // files={ './environmentMaps/the_sky_is_on_fire_2k.hdr' }
-            // ground={ {
-            //     'height': 7,
-            //     'radius': 28,
-            //     'scale': 100
-            // } }
+            ground={ {
+                'height': envMapHeight,
+                'radius': envMapRadius,
+                'scale': envMapScale
+            } }
             preset='sunset'
             environmentIntensity={ envMapIntensity }
             resolution={ 32 }
         >
             <color args={ ['#000000'] } attach={ 'background' } />
-            {/* <mesh position-z={ -5 } scale={ 10 } >
+            <mesh position-z={ -5 } scale={ 10 } >
                 <planeGeometry />
                 <meshBasicMaterial color={ [10, 0, 0] } />
-            </mesh> */}
+            </mesh>
             <Lightformer 
                 position-z={ -5 } 
                 scale={ 10 } 
@@ -78,7 +81,7 @@ export default function Experience() {
 
         <Perf position='top-left'/>
 
-        {/* <color args={ ['purple'] } attach={ 'background' } /> */}
+        <color args={ ['purple'] } attach={ 'background' } />
 
         {/* <SoftShadows size={25} samples={10} focus={0} /> */}
         {/* <BakeShadows /> */}
@@ -104,7 +107,7 @@ export default function Experience() {
         </AccumulativeShadows> */}
 
         <ContactShadows
-            position={ [0, 0, 0] }
+            position={ [0, -1, 0] }
             scale={ 10 }
             resolution={ 512 }
             far={ 5 }
@@ -132,7 +135,7 @@ export default function Experience() {
             sunPosition={ sunPosition }
         /> */}
 
-        <group>
+        {/* <Stage environment={'sunset'} preset={'portrait'} > */}
             <mesh ref={cubeRef} castShadow position={ [2, 0, 0] } >
                 <boxGeometry />
                 <meshStandardMaterial color={'mediumpurple'} metalness={ metalness } roughness={ roughness } />
@@ -142,9 +145,9 @@ export default function Experience() {
                 <sphereGeometry />
                 <meshStandardMaterial color={ 'orange' } metalness={ metalness } roughness={ roughness } />
             </mesh>
-
             
-        </group>
+            
+        {/* </Stage> */}
 
     </>
   )
